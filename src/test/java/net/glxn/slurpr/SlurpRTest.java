@@ -34,11 +34,16 @@ public class SlurpRTest {
         assertNotNull(slurpMapper);
     }
 
-    @Ignore
     @Test
     public void getsListOfObjectsFromStream() throws Exception {
         List<Person> persons = SlurpR.csv(TEST_CSV).to(Person.class).list();
         assertNotNull(persons);
         assertEquals(2, persons.size());
+        assertEquals("1", persons.get(0).getId());
+        assertEquals("ken", persons.get(0).getName());
+        assertEquals("30", persons.get(0).getAge());
+        assertEquals("2", persons.get(1).getId());
+        assertEquals("karianne", persons.get(1).getName());
+        assertEquals("28", persons.get(1).getAge());
     }
 }
