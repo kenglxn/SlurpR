@@ -1,18 +1,21 @@
 package net.glxn.slurpr;
 
 import net.glxn.slurpr.exception.*;
+import net.sf.json.*;
 
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 
 import static net.glxn.qbe.reflection.Reflection.*;
+import static net.glxn.slurpr.Resources.*;
 
 public class SlurpMapper<T> {
 
     private final Scanner scanner;
     private final Class<T> clazz;
-    private final Map<String,Integer> headers = new HashMap<String, Integer>();
+    private final Map<String, Integer> headers = new HashMap<String, Integer>();
+    private HashMap<String,String> fieldMapping = new HashMap<String, String>();
 
     SlurpMapper(InputStream stream, Class<T> clazz) {
         this.clazz = clazz;
@@ -28,10 +31,13 @@ public class SlurpMapper<T> {
             T instance = createInstance(clazz);
             List<Field> fields = fields(hierarchy(clazz));
             for (Field field : fields) {
-                if (headers.containsKey(field.getName())) {
+                boolean headerContainsField = headers.containsKey(field.getName());
+                boolean mappingContainsField = fieldMapping.containsKey(field.getName());
+                if (headerContainsField || mappingContainsField) {
                     field.setAccessible(true);
                     try {
-                        field.set(instance, lineValues[headers.get(field.getName())]);
+                        String key = headerContainsField ? field.getName() : fieldMapping.get(field.getName());
+                        field.set(instance, lineValues[headers.get(key)]);
                     } catch (IllegalAccessException e) {
                         throw new SlurpRException("unable to set value on field", e);
                     }
@@ -48,5 +54,17 @@ public class SlurpMapper<T> {
             headers.put(lineValues[i], i);
         }
         scanner.reset();
+    }
+
+    public SlurpMapper<T> usingMapping(String mappingFile) {
+        JSONObject mappingJSON = (JSONObject) JSONSerializer.toJSON(getClasspathFileContent(mappingFile));
+        Set classes = mappingJSON.keySet();
+        for (Object className : classes) {
+            JSONObject mapping = mappingJSON.getJSONObject((String) className);
+            for (Object field : mapping.keySet()) {
+                fieldMapping.put((String) field, mapping.getString((String) field));
+            }
+        }
+        return this;
     }
 }

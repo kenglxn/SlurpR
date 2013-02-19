@@ -46,4 +46,34 @@ public class SlurpRTest {
         assertEquals("karianne", persons.get(1).getName());
         assertEquals("28", persons.get(1).getAge());
     }
+
+    @Test
+    public void usingMappingFailsIfFileNotFound() throws Exception {
+        String bogusMappingFileName = "bogus.json";
+        try {
+            SlurpR.csv(TEST_CSV)
+                  .to(Person.class)
+                  .usingMapping(bogusMappingFileName);
+            fail("expected exception");
+        } catch (SlurpRException e) {
+            assertTrue(e.getMessage().contains(bogusMappingFileName));
+        }
+    }
+
+    @Test
+    public void getsListOfObjectsFromStreamUsingMapping() throws Exception {
+        List<Person> persons =
+                SlurpR.csv("test-with-mapping.csv")
+                      .to(Person.class)
+                      .usingMapping("test-mapping.json")
+                      .list();
+        assertNotNull(persons);
+        assertEquals(2, persons.size());
+        assertEquals("1", persons.get(0).getId());
+        assertEquals("ken", persons.get(0).getName());
+        assertEquals("30", persons.get(0).getAge());
+        assertEquals("2", persons.get(1).getId());
+        assertEquals("karianne", persons.get(1).getName());
+        assertEquals("28", persons.get(1).getAge());
+    }
 }

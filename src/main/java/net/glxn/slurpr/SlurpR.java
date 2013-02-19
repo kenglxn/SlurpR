@@ -1,8 +1,8 @@
 package net.glxn.slurpr;
 
-import net.glxn.slurpr.exception.*;
-
 import java.io.*;
+
+import static net.glxn.slurpr.Resources.*;
 
 public class SlurpR {
     private final InputStream stream;
@@ -12,10 +12,7 @@ public class SlurpR {
     }
 
     public static SlurpR csv(String fileName) {
-        InputStream stream = ClassLoader.getSystemResourceAsStream(fileName);
-        if(stream == null) {
-            throw new SlurpRException("failed to find file on classpath with name " + fileName);
-        }
+        InputStream stream = getStreamFromClasspath(fileName);
         return new SlurpR(stream);
     }
 
