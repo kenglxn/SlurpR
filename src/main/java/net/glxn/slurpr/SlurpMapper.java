@@ -15,7 +15,7 @@ public class SlurpMapper<T> {
     private final Scanner scanner;
     private final Class<T> clazz;
     private final Map<String, Integer> headers = new HashMap<String, Integer>();
-    private HashMap<String,String> fieldMapping = new HashMap<String, String>();
+    private HashMap<String, String> fieldMapping = new HashMap<String, String>();
 
     SlurpMapper(InputStream stream, Class<T> clazz) {
         this.clazz = clazz;
@@ -58,12 +58,8 @@ public class SlurpMapper<T> {
 
     public SlurpMapper<T> usingMapping(String mappingFile) {
         JSONObject mappingJSON = (JSONObject) JSONSerializer.toJSON(getClasspathFileContent(mappingFile));
-        Set classes = mappingJSON.keySet();
-        for (Object className : classes) {
-            JSONObject mapping = mappingJSON.getJSONObject((String) className);
-            for (Object field : mapping.keySet()) {
-                fieldMapping.put((String) field, mapping.getString((String) field));
-            }
+        for (Object field : mappingJSON.keySet()) {
+            fieldMapping.put((String) field, mappingJSON.getString((String) field));
         }
         return this;
     }

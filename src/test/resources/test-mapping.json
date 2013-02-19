@@ -1,7 +1,5 @@
 {
-    "net.glxn.slurpr.model.Person": {
-        "id":"Identifaciones",
-        "name":"Namos",
-        "age":"Alderos"
-    }
+    "id": "Identifaciones",
+    "name": "Namos",
+    "age": "Alderos"
 }
