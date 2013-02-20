@@ -1,6 +1,8 @@
 package net.glxn.slurpr;
 
+import net.glxn.qbe.reflection.*;
 import net.glxn.slurpr.exception.*;
+import net.glxn.slurpr.provider.*;
 import net.sf.json.*;
 
 import java.io.*;
@@ -12,10 +14,11 @@ import static net.glxn.slurpr.Resources.*;
 
 public class SlurpMapper<T> {
 
-    private final Scanner scanner;
     private final Class<T> clazz;
+    private final Scanner scanner;
     private final Map<String, Integer> headers = new HashMap<String, Integer>();
     private HashMap<String, String> fieldMapping = new HashMap<String, String>();
+    private HashMap<String,String> providers = new HashMap<String, String>();
 
     SlurpMapper(InputStream stream, Class<T> clazz) {
         this.clazz = clazz;
@@ -29,16 +32,14 @@ public class SlurpMapper<T> {
             String[] lineValues = scanner.nextLine().split(",");
 
             T instance = createInstance(clazz);
-            List<Field> fields = fields(hierarchy(clazz));
-            for (Field field : fields) {
-                boolean headerContainsField = headers.containsKey(field.getName());
-                boolean mappingContainsField = fieldMapping.containsKey(field.getName());
-                if (headerContainsField || mappingContainsField) {
+            for (Field field : fields(hierarchy(clazz))) {
+                String fieldName = field.getName();
+                if (headers.containsKey(fieldName) || fieldMapping.containsKey(fieldName)) {
                     field.setAccessible(true);
                     try {
-                        String key = headerContainsField ? field.getName() : fieldMapping.get(field.getName());
-                        field.set(instance, lineValues[headers.get(key)]);
-                    } catch (IllegalAccessException e) {
+                        String key = headers.containsKey(fieldName) ? fieldName : fieldMapping.get(fieldName);
+                        field.set(instance, findValue(lineValues, key));
+                    } catch (Exception e) {
                         throw new SlurpRException("unable to set value on field", e);
                     }
                 }
@@ -46,6 +47,14 @@ public class SlurpMapper<T> {
             list.add(instance);
         }
         return list;
+    }
+
+    private Object findValue(String[] lineValues, String key) {
+        Object value = lineValues[headers.get(key)];
+        if (providers.containsKey(key)) {
+            value = Reflection.<LookupProvider>createInstance(providers.get(key)).lookup((String) value);
+        }
+        return value;
     }
 
     private void createHeaderMap() {
@@ -59,7 +68,13 @@ public class SlurpMapper<T> {
     public SlurpMapper<T> usingMapping(String mappingFile) {
         JSONObject mappingJSON = (JSONObject) JSONSerializer.toJSON(getClasspathFileContent(mappingFile));
         for (Object field : mappingJSON.keySet()) {
-            fieldMapping.put((String) field, mappingJSON.getString((String) field));
+            String value = mappingJSON.getString((String) field);
+            JSONObject jsonObject = mappingJSON.optJSONObject((String) field);
+            if (jsonObject != null) {
+                value = jsonObject.getString("key");
+                providers.put(value, jsonObject.getString("provider"));
+            }
+            fieldMapping.put((String) field, value);
         }
         return this;
     }

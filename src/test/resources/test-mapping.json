@@ -1,5 +1,9 @@
 {
     "id": "Identifaciones",
     "name": "Namos",
-    "age": "Alderos"
+    "age": "Alderos",
+    "relation": {
+        "key": "Relationes",
+        "provider": "net.glxn.slurpr.provider.PersonProvider"
+    }
 }
