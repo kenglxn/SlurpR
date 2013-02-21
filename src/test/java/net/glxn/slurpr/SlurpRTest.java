@@ -1,5 +1,6 @@
 package net.glxn.slurpr;
 
+import net.glxn.qbe.reflection.exception.*;
 import net.glxn.slurpr.exception.*;
 import net.glxn.slurpr.model.*;
 import org.junit.*;
@@ -72,8 +73,24 @@ public class SlurpRTest {
         assertEquals("1", persons.get(0).getId());
         assertEquals("ken", persons.get(0).getName());
         assertEquals("30", persons.get(0).getAge());
+        assertEquals("2", persons.get(0).getRelation().getId());
         assertEquals("2", persons.get(1).getId());
         assertEquals("karianne", persons.get(1).getName());
         assertEquals("28", persons.get(1).getAge());
+        assertEquals("1", persons.get(1).getRelation().getId());
+    }
+
+    @Test
+    public void shouldThrowExceptionForProviderNotFoundOnClasspath() throws Exception {
+        try {
+            SlurpR.csv("test-with-mapping.csv")
+                  .to(Person.class)
+                  .usingMapping("test-mapping-bogus-provider.json")
+                  .list();
+            fail("expected exception");
+        } catch (SlurpRException e) {
+            assertEquals(e.getCause().getClass(), ReflectionException.class);
+            assertTrue(e.getCause().getMessage().contains("BogusProvider"));
+        }
     }
 }
