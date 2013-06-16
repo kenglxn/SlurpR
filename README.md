@@ -6,8 +6,8 @@ a simple CSV slurping api for java
 Example usage:
 
 Slurp simple csv where fields in csv match fields in POJO
-´´´java
 
+´´´java
 List<Person> persons = 
                 SlurpR.csv("data.csv")
                       .to(Person.class)
@@ -21,6 +21,7 @@ id,name,age
 ´´´
 
 Slurp csv using a mapping file
+
 ´´´java
 
 List<Person> persons =
@@ -43,6 +44,7 @@ Identifaciones,Namos,Alderos
 ´´´
 
 Slurp csv using a mapping file with a LookupProvider
+
 ´´´java
 
 List<Person> persons =
