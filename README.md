@@ -1,12 +1,10 @@
-SlurpR
-======
+# SlurpR
 
 a simple CSV slurping api for java
 
-Example usage:
+### Examples:
 
-Slurp simple csv where fields in csv match fields in POJO
-
+##### Slurp simple csv where fields in csv match fields in POJO:
 ```java
 List<Person> persons = 
                 SlurpR.csv("data.csv")
@@ -18,7 +16,7 @@ id,name,age
 2,mary,28
 ```
 
-Slurp csv using a mapping file
+##### Slurp csv using a mapping file:
 ```java
 List<Person> persons =
                 SlurpR.csv("data.csv")
@@ -39,7 +37,7 @@ Identifaciones,Namos,Alderos
 }           
 ```
 
-Slurp csv using a mapping file with a LookupProvider
+##### Slurp csv using a mapping file with a LookupProvider
 ```java
 List<Person> persons =
                 SlurpR.csv("data.csv")
@@ -72,7 +70,7 @@ public class PersonProvider implements LookupProvider<Person> {
 }
 ```
 
-Spring support: Slurp csv using a mapping file with a LookupProvider as spring bean
+##### Spring support: Slurp csv using a mapping file with a LookupProvider as spring bean
 ```java
 List<Person> persons =
                 SlurpR.csv("data.csv")
