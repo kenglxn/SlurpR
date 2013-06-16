@@ -21,7 +21,8 @@ id,name,age
 Slurp csv using a mapping file
 ```java
 List<Person> persons =
-                SlurpR.csv("data.csv").to(Person.class)
+                SlurpR.csv("data.csv")
+                      .to(Person.class)
                       .usingMapping("mapping.json")
                       .list();
                         
